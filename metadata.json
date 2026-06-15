@@ -1,0 +1,6 @@
+{
+  "name": "VisionTrack Pro",
+  "description": "An all-in-one vision studio to train and run YOLO models, visualize and manually override bounding box centroids and error logs, and export rectified predictions and ground truth annotations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "run_1780065595211",
+    "modelConfig": "yolo8m",
+    "version": "8",
+    "size": "m",
+    "timestamp": "2026-05-29T14:39:55.211Z",
+    "status": "Completed",
+    "weightsFile": "./runs/pseudopupil_yolo8m_obb/weights/best.pt",
+    "associatedCSV": "/api/download/csv/results-yolo8m-obb-1780066622418.csv"
+  },
+  {
+    "id": "run_1780498783676",
+    "modelConfig": "yolo26m",
+    "version": "26",
+    "size": "m",
+    "timestamp": "2026-06-03T14:59:43.676Z",
+    "status": "Completed",
+    "weightsFile": "./runs/pseudopupil_yolo26m_obb/weights/best.pt",
+    "associatedCSV": "/api/download/csv/results-yolo26m-obb-1780500527428.csv"
+  },
+  {
+    "id": "run_1780895532536",
+    "modelConfig": "yolo11m",
+    "version": "11",
+    "size": "m",
+    "timestamp": "2026-06-08T05:12:12.537Z",
+    "status": "Completed",
+    "weightsFile": "./runs/pseudopupil_yolo11m_obb/weights/best.pt",
+    "associatedCSV": "/api/download/csv/results-yolo11m-obb-1780900634051.csv"
+  }
+]
