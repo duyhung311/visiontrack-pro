@@ -21,7 +21,6 @@ VisionTrack functions as a highly modularized full-stack architecture:
 │   ├── App.tsx                # Client application hub & state engine
 │   ├── components/            # Reusable core visual components
 │   │   ├── VisionTrackInspectorPanel.tsx  # Dynamic interactive inspector and SVG manual refinement panel
-│   │   ├── ModelPerformanceDashboard.tsx  # Interactive charts graphing epoch losses, accuracy, and metric gains
 │   └── lib/                   # Utility classes & parses (e.g., CSV mapping, geometry calculations)
 ├── visible/                   # Base visible data directory
 │   ├── mat_files/             # Workspace subfolders holding raw multi-channel MATLAB (.mat) files
@@ -39,8 +38,8 @@ The core YOLO processing and dataset orchestration rely on Python libraries. Fol
 ### 1. Create a Dedicated Conda Environment
 Using Anaconda or Miniconda, create a fresh sandbox environment with Python **3.10**:
 ```bash
-conda create --name visiontrack python=3.10 -y
-conda activate visiontrack
+(base) conda create --name visiontrack python=3.10 -y
+(base) conda activate visiontrack
 ```
 
 ### 2. Install PyTorch with Hardware Acceleration
@@ -49,23 +48,23 @@ Configure PyTorch depending on your host machine's hardware capabilities:
 * **For CUDA-enabled GPUs (NVIDIA Recommended):**
   ```bash
   # Install PyTorch with appropriate CUDA version (e.g., CUDA 11.8 or 12.1)
-  conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia -y
+  (visiontrack) conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia -y
   ```
 
 * **For macOS (Apple Silicon MPS / CPU):**
   ```bash
-  conda install pytorch torchvision -c pytorch -y
+  (visiontrack) conda install pytorch torchvision -c pytorch -y
   ```
 
 * **For CPU-only machines:**
   ```bash
-  conda install pytorch torchvision cpuonly -c pytorch -y
+  (visiontrack) conda install pytorch torchvision cpuonly -c pytorch -y
   ```
 
 ### 3. Install Target Dependencies and Ultralytics
 Install the necessary imaging, manipulation, and deep learning libraries via `pip`:
 ```bash
-pip install ultralytics scikit-image opencv-python pandas numpy scipy pyyaml
+(visiontrack) pip install ultralytics scikit-image opencv-python pandas numpy scipy pyyaml
 ```
 
 *Installed Modules Description:*

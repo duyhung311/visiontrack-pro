@@ -7,8 +7,8 @@ coverage/
 .env*
 !.env.example
 
-debug_*/
-*.pt
-results*.csv
-*.txt
+visible/**
+csv_outputs/**
 runs/**
+yolo_dataset/**
+debug_*/

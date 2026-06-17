@@ -493,8 +493,45 @@ def train():
     def on_train_epoch_end(trainer):
         epoch = trainer.epoch + 1
         total = trainer.epochs
-        loss_dict = trainer.loss_items
-        loss_str = " ".join([f"{k}:{v:.4f}" for k, v in loss_dict.items()]) if hasattr(trainer, 'loss_items') else ""
+        loss_str = ""
+        loss_items = getattr(trainer, "loss_items", None)
+        if loss_items is not None:
+            # Try to map names if available
+            loss_names = getattr(trainer, "loss_names", getattr(trainer, "loss_keys", None))
+            vals = []
+            if hasattr(loss_items, "items"):
+                try:
+                    loss_str = " ".join([f"{k}:{float(v):.4f}" for k, v in loss_items.items()])
+                except Exception:
+                    pass
+            elif hasattr(loss_items, "tolist"):
+                try:
+                    val_data = loss_items.tolist()
+                    if isinstance(val_data, list):
+                        vals = val_data
+                    else:
+                        vals = [val_data]
+                except Exception:
+                    pass
+            elif isinstance(loss_items, (list, tuple)):
+                vals = list(loss_items)
+            else:
+                try:
+                    vals = [float(loss_items)]
+                except Exception:
+                    pass
+
+            if not loss_str and vals:
+                if loss_names and len(loss_names) == len(vals):
+                    try:
+                        loss_str = " ".join([f"{k}:{float(v):.4f}" for k, v in zip(loss_names, vals)])
+                    except Exception:
+                        pass
+                else:
+                    try:
+                        loss_str = " ".join([f"loss_{i}:{float(v):.4f}" for i, v in enumerate(vals)])
+                    except Exception:
+                        pass
         # Format easily readable by Node server child parser
         print(f"EPOCH_PROGRESS {epoch} {total} {loss_str}", flush=True)
 

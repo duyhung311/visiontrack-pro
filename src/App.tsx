@@ -109,6 +109,7 @@ export default function App() {
     copiedFiles?: string[];
   } | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
 
@@ -642,6 +643,39 @@ export default function App() {
     }
   };
 
+  // Convert .mat files to .png
+  const handleConvertMatToPng = async () => {
+    setIsConverting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const envToSend = selectedCondaEnv === "custom" ? customCondaEnv : selectedCondaEnv;
+      const res = await fetch("/api/convert-mat-to-png", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          folder: selectedDir === "Default Workspace" ? "" : selectedDir,
+          condaEnv: envToSend 
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setSuccessMessage(data.message || "Successfully converted MAT files to PNG!");
+        await refreshFiles();
+        await refreshTrainFiles();
+        await refreshInferFiles();
+        setWorkspaceFilter("image");
+      } else {
+        setErrorMessage(data.error || "Failed to convert MAT files. Verify your environment or .mat file format contents.");
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message);
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
   // Handle deleting individual file
   const handleDeleteFile = async (filename: string) => {
     if (!window.confirm(`Permanently remove ${filename} from local storage?`)) return;
@@ -1064,6 +1098,44 @@ export default function App() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* MAT to PNG Converter Button */}
+                <div className="mb-4 bg-indigo-50/35 border border-indigo-100/80 p-3.5 rounded-lg shadow-sm">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 font-mono">
+                    MAT File Conversion
+                  </label>
+                  <button
+                    id="btn_convert_mat_to_png"
+                    onClick={handleConvertMatToPng}
+                    disabled={isConverting || matFiles.length === 0}
+                    type="button"
+                    className={`w-full py-2 px-3 rounded text-xs font-semibold font-mono flex items-center justify-center gap-2 transition duration-200 border cursor-pointer ${
+                      isConverting
+                        ? "bg-white border-indigo-200 text-indigo-700 animate-pulse"
+                        : matFiles.length === 0
+                        ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                        : "bg-indigo-600 hover:bg-indigo-700 border-indigo-750 text-white shadow-3xs"
+                    }`}
+                  >
+                    {isConverting ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-700" />
+                    ) : (
+                      <Layers className="w-3.5 h-3.5" />
+                    )}
+                    {isConverting ? "Converting .mat → .png..." : "Convert MAT to PNG"}
+                  </button>
+                  {matFiles.length > 0 && !isConverting && (
+                    <p className="text-[9px] text-indigo-700 mt-1.5 text-center font-mono leading-tight">
+                      Convert <span className="font-extrabold">{matFiles.length} `.mat` files</span> in <span className="font-semibold italic">"{selectedDir}"</span> to PNGs.
+                    </p>
+                  )}
+                  {matFiles.length === 0 && (
+                    <p className="text-[9px] text-amber-600 mt-1.5 text-center font-mono leading-tight flex items-center gap-1 justify-center">
+                      <AlertTriangle className="w-2.5 h-2.5 text-amber-500 flex-shrink-0" />
+                      No `.mat` source files in current folder.
+                    </p>
+                  )}
                 </div>
 
                 <div className="mb-4">

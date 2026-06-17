@@ -462,6 +462,92 @@ app.post("/api/copy-local", (req, res) => {
   }
 });
 
+app.post("/api/convert-mat-to-png", (req, res) => {
+  try {
+    const { folder, condaEnv } = req.body;
+    
+    const pyArgs = [
+      path.join(process.cwd(), "convert_mat_to_png.py"),
+    ];
+    if (folder) {
+      pyArgs.push("--folder", folder);
+    }
+
+    let child;
+    if (condaEnv && condaEnv !== "system-default") {
+      const condaArgs = ["run", "--no-capture-output", "-n", condaEnv, "python", ...pyArgs];
+      console.log(`Spawning conda run for conversion: conda ${condaArgs.join(" ")}`);
+      child = spawn("conda", condaArgs, { shell: true });
+    } else {
+      console.log(`Spawning standard python for conversion: python ${pyArgs.join(" ")}`);
+      child = spawn("python", pyArgs, { shell: true });
+    }
+
+    let stdoutData = "";
+    let stderrData = "";
+
+    child.stdout?.on("data", (data) => {
+      const dataStr = data.toString();
+      stdoutData += dataStr;
+      
+      // Also broadcast as logs in the inference tab if inference stream of SSE is active
+      const lines = dataStr.split("\n");
+      lines.forEach((line: string) => {
+        const clean = line.trim();
+        if (clean) {
+          broadcast({ type: "log", feed: "inference", log: `[CONVERT] ${clean}` });
+        }
+      });
+    });
+
+    child.stderr?.on("data", (data) => {
+      const dataStr = data.toString();
+      stderrData += dataStr;
+      
+      const lines = dataStr.split("\n");
+      lines.forEach((line: string) => {
+        const clean = line.trim();
+        if (clean) {
+          broadcast({ type: "log", feed: "inference", log: `[CONVERT_ERROR] ${clean}` });
+        }
+      });
+    });
+
+    child.on("error", (err) => {
+      console.error("Conversion spawn error:", err);
+      return res.status(500).json({ error: `Failed to invoke converter: ${err.message}` });
+    });
+
+    child.on("close", (code) => {
+      console.log(`Conversion process exited with code ${code}`);
+      const combinedLogs = stdoutData + "\n" + stderrData;
+      if (code === 0) {
+        let fileCount = 0;
+        let imgCount = 0;
+        const fileMatch = stdoutData.match(/Converted (\d+)\/\d+ \.mat files/);
+        const imgMatch = stdoutData.match(/Generated (\d+) PNG images/);
+        if (fileMatch) fileCount = parseInt(fileMatch[1]);
+        if (imgMatch) imgCount = parseInt(imgMatch[1]);
+
+        return res.json({
+          message: `Successfully converted ${fileCount} .mat file(s) into ${imgCount} PNG images inside the workspace folder!`,
+          logs: combinedLogs,
+          fileCount,
+          imgCount
+        });
+      } else {
+        return res.status(500).json({
+          error: `Conversion script executed with error (code ${code})`,
+          logs: combinedLogs
+        });
+      }
+    });
+
+  } catch (err: any) {
+    res.status(550).json({ error: err.message });
+  }
+});
+
 app.delete("/api/files/:filename", (req, res) => {
   try {
     const filename = path.basename(req.params.filename);
