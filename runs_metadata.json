@@ -27,6 +27,6 @@
     "timestamp": "2026-06-08T05:12:12.537Z",
     "status": "Completed",
     "weightsFile": "./runs/pseudopupil_yolo11m_obb/weights/best.pt",
-    "associatedCSV": "/api/download/csv/results-yolo11m-obb-1780900634051.csv"
+    "associatedCSV": "/api/download/csv/Aeschna_isoceles/results-yolo11m-obb-1781708847161.csv"
   }
 ]

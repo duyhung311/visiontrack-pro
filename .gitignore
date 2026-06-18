@@ -7,8 +7,16 @@ coverage/
 .env*
 !.env.example
 
+
 visible/**
 csv_outputs/**
 runs/**
+!runs/
+!runs/obb/
+!runs/obb/runs/
+!runs/obb/runs/pseudopupil_yolo11m_obb/
+!runs/obb/runs/pseudopupil_yolo11m_obb/weights/
+!runs/obb/runs/pseudopupil_yolo11m_obb/weights/best.pt
+
 yolo_dataset/**
 debug_*/
